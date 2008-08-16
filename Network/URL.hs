@@ -2,7 +2,7 @@
 -- |
 -- Module      : Network.URL
 -- Copyright   : (c) Galois, Inc. 2007, 2008
--- License     : AllRightsReserved
+-- License     : BSD3
 --
 -- Maintainer  : Iavor S. Diatchki
 -- Stability   : Provisional
