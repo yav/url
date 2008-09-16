@@ -8,7 +8,7 @@
 -- Stability   : Provisional
 -- Portability : Portable
 --
--- Provides a convinient way for working with HTTP URLs.
+-- Provides a convenient way for working with HTTP URLs.
 -- Based on RFC 1738.
 
 module Network.URL
@@ -37,7 +37,7 @@ data Host = Host { secure :: Bool
 -- | Different types of URL.
 data URLType  = Absolute Host       -- ^ Has a host
               | HostRelative        -- ^ Does not have a host
-              | PathRelative        -- ^ Rleative to another URL
+              | PathRelative        -- ^ Relative to another URL
                 deriving (Eq, Ord, Show)
 
 -- | A type for working with URL.
@@ -54,7 +54,7 @@ add_param :: URL -> (String,String) -> URL
 add_param url x = url { url_params = x : url_params url }
 
 
--- | Convert a list of "bytes" to a URL.
+-- | Convert a list of \"bytes\" to a URL.
 importURL :: String -> Maybe URL
 importURL cs1 =
   do (ho,cs5) <- front cs1
@@ -110,7 +110,7 @@ parse_params cs = mapM a_param (breaks ('&'==) cs)
                   return (k,v)
 
 
--- | Convert the host part of a URL to a list of "bytes".
+-- | Convert the host part of a URL to a list of \"bytes\".
 exportHost :: Host -> String
 exportHost abs = the_prot ++ "://" ++ host abs ++ the_port
   where the_prot  = "http" ++ if secure abs then "s" else ""
@@ -118,7 +118,7 @@ exportHost abs = the_prot ++ "://" ++ host abs ++ the_port
 
 
 
--- | Convert a URL to a list of "bytes".
+-- | Convert a URL to a list of \"bytes\".
 -- We represent non-ASCII characters using UTF8.
 exportURL :: URL -> String
 exportURL url = abs ++ the_path ++ the_params
@@ -143,7 +143,7 @@ exportURL url = abs ++ the_path ++ the_params
 
 
 
--- | Convert a string to bytes by escaping the characetrs that
+-- | Convert a string to bytes by escaping the characters that
 -- do not satisfy the input predicate.  The first argument specifies
 -- if we should replace spaces with +.
 encString :: Bool -> (Char -> Bool) -> String -> String
@@ -161,12 +161,12 @@ encByte b = '%' : case showHex b "" of
                     d@[_] -> '0' : d
                     d     -> d
 
--- | Decode a list of "bytes" to a string.
+-- | Decode a list of \"bytes\" to a string.
 -- Performs % and UTF8 decoding.
 decString :: Bool -> String -> Maybe String
 decString b xs = fmap UTF8.decode (decStrBytes b xs)
 
--- Convert a list of "bytes" to actual bytes.
+-- Convert a list of \"bytes\" to actual bytes.
 -- Performs %-decoding.  The boolean specifies if we should turn pluses into
 -- spaces.
 decStrBytes :: Bool -> String -> Maybe [Word8]
