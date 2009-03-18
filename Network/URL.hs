@@ -10,9 +10,11 @@
 --
 -- Provides a convenient way for working with HTTP URLs.
 -- Based on RFC 1738.
+-- See also: RFC 3986
 
 module Network.URL
-  ( URL(..), URLType(..), Host(..)
+  ( URL(..), URLType(..), Host(..), Protocol(..)
+  , secure, secure_prot
   , exportURL, importURL, exportHost
   , add_param
   , decString, encString
@@ -29,10 +31,24 @@ import Codec.Binary.UTF8.String as UTF8
 
 
 -- | Contains information about the connection to the host.
-data Host = Host { secure :: Bool
-                 , host   :: String
-                 , port   :: Maybe Integer
-                 } deriving (Eq,Ord,Show)
+data Host     = Host { protocol :: Protocol
+                     , host     :: String
+                     , port     :: Maybe Integer
+                     } deriving (Eq,Ord,Show)
+
+-- | The type of known protocols.
+data Protocol = HTTP Bool | FTP Bool | RawProt String deriving (Eq,Ord,Show)
+
+-- | Is this a \"secure\" protocol.  This works only for known protocols,
+-- for 'RawProt' values we return 'False'.
+secure_prot :: Protocol -> Bool
+secure_prot (HTTP s)     = s
+secure_prot (FTP s)      = s
+secure_prot (RawProt _)  = False
+
+-- | Does this host use a \"secure\" protocol (e.g., https).
+secure :: Host -> Bool
+secure x = secure_prot (protocol x)
 
 -- | Different types of URL.
 data URLType  = Absolute Host       -- ^ Has a host
@@ -66,21 +82,29 @@ importURL cs1 =
   front ('/':cs)  = return (HostRelative,cs)
   front cs =
     case the_prot cs of
-      Just (sec,':':'/':'/':cs1) ->
+      Just (pr,cs1) ->
         do let (ho,cs2) = the_host cs1
            (po,cs3) <- the_port cs2
            cs4 <- case cs3 of
                     [] -> return []
                     '/':cs -> return cs
                     _ -> Nothing
-           return (Absolute Host { secure = sec, host = ho, port = po }, cs4)
+           return (Absolute Host { protocol = pr
+                                 , host = ho
+                                 , port = po
+                                 }, cs4)
       _ -> return (PathRelative,cs)
 
-  the_prot ('h' : 't' : 't' : 'p' : cs) =
-    Just $ case cs of
-             's' : ds -> (True,ds)
-             _        -> (False,cs)
-  the_prot _ = Nothing    -- or perhaps default to http://?
+  the_prot :: String -> Maybe (Protocol, String)
+  the_prot urlStr = case break (':' ==) urlStr of
+     (as@(_:_), ':' : '/' : '/' : bs) -> Just (prot, bs)
+       where prot = case as of
+                      "https" -> HTTP True
+                      "http"  -> HTTP False
+                      "ftps"  -> FTP  True
+                      "ftp"   -> FTP  False
+                      _       -> RawProt as
+     _                                -> Nothing
 
   the_host cs = span ok_host cs
 
@@ -113,9 +137,18 @@ parse_params cs = mapM a_param (breaks ('&'==) cs)
 -- | Convert the host part of a URL to a list of \"bytes\".
 exportHost :: Host -> String
 exportHost abs = the_prot ++ "://" ++ host abs ++ the_port
-  where the_prot  = "http" ++ if secure abs then "s" else ""
+  where the_prot  = exportProt (protocol abs)
         the_port  = maybe "" (\x -> ":" ++ show x) (port abs)
 
+-- | Convert the host part of a URL to a list of \"bytes\".
+-- WARNING: We output \"raw\" protocols as they are.
+exportProt :: Protocol -> String
+exportProt prot = case prot of
+  HTTP True   -> "https"
+  HTTP False  -> "http"
+  FTP  True   -> "ftps"
+  FTP  False  -> "ftp"
+  RawProt s   -> s
 
 
 -- | Convert a URL to a list of \"bytes\".
