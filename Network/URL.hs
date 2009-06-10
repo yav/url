@@ -73,8 +73,8 @@ add_param url x = url { url_params = x : url_params url }
 
 -- | Convert a list of \"bytes\" to a URL.
 importURL :: String -> Maybe URL
-importURL cs1 =
-  do (ho,cs5) <- front cs1
+importURL cs0 =
+  do (ho,cs5) <- front cs0
      (pa,cs6) <- the_path cs5
      as       <- the_args cs6
      return URL { url_type = ho, url_path = pa, url_params = as }
@@ -88,7 +88,7 @@ importURL cs1 =
            (po,cs3) <- the_port cs2
            cs4 <- case cs3 of
                     [] -> return []
-                    '/':cs -> return cs
+                    '/':cs5 -> return cs5
                     _ -> Nothing
            return (Absolute Host { protocol = pr
                                  , host = ho
@@ -125,7 +125,7 @@ importURL cs1 =
 
 importParams :: String -> Maybe [(String,String)]
 importParams [] = return []
-importParams cs = mapM a_param (breaks ('&'==) cs)
+importParams ds = mapM a_param (breaks ('&'==) ds)
   where
   a_param cs = do let (as,bs) = break ('=' ==) cs
                   k <- decString True as
@@ -137,9 +137,9 @@ importParams cs = mapM a_param (breaks ('&'==) cs)
 
 -- | Convert the host part of a URL to a list of \"bytes\".
 exportHost :: Host -> String
-exportHost abs = the_prot ++ "://" ++ host abs ++ the_port
-  where the_prot  = exportProt (protocol abs)
-        the_port  = maybe "" (\x -> ":" ++ show x) (port abs)
+exportHost absol = the_prot ++ "://" ++ host absol ++ the_port
+  where the_prot  = exportProt (protocol absol)
+        the_port  = maybe "" (\x -> ":" ++ show x) (port absol)
 
 -- | Convert the host part of a URL to a list of \"bytes\".
 -- WARNING: We output \"raw\" protocols as they are.
@@ -155,10 +155,10 @@ exportProt prot = case prot of
 -- | Convert a URL to a list of \"bytes\".
 -- We represent non-ASCII characters using UTF8.
 exportURL :: URL -> String
-exportURL url = abs ++ the_path ++ the_params
+exportURL url = absol ++ the_path ++ the_params
   where
-  abs         = case url_type url of
-                  Absolute host -> exportHost host ++ "/"
+  absol       = case url_type url of
+                  Absolute hst -> exportHost hst ++ "/"
                   HostRelative  -> "/"
                   PathRelative  -> ""
 
@@ -183,7 +183,7 @@ exportParams ps = concat (intersperse "&" $ map a_param ps)
 -- do not satisfy the input predicate.  The first argument specifies
 -- if we should replace spaces with +.
 encString :: Bool -> (Char -> Bool) -> String -> String
-encString pl p xs = foldr enc1 [] xs
+encString pl p ys = foldr enc1 [] ys
   where enc1 ' ' xs | pl = '+' : xs
         enc1 x xs = if p x then x : xs else encChar x ++ xs
 
