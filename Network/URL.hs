@@ -19,6 +19,7 @@ module Network.URL
   , add_param
   , decString, encString
   , ok_host, ok_url, ok_param, ok_path
+  , exportParams, importParams
   ) where
 
 import Data.Word(Word8)
@@ -118,13 +119,13 @@ importURL cs1 =
                    return (s,bs)
     where end_path c = c == '#' || c == '?'
 
-  the_args ('?' : cs)   = parse_params cs
+  the_args ('?' : cs)   = importParams cs
   the_args _            = return []
 
 
-parse_params :: String -> Maybe [(String,String)]
-parse_params [] = return []
-parse_params cs = mapM a_param (breaks ('&'==) cs)
+importParams :: String -> Maybe [(String,String)]
+importParams [] = return []
+importParams cs = mapM a_param (breaks ('&'==) cs)
   where
   a_param cs = do let (as,bs) = break ('=' ==) cs
                   k <- decString True as
@@ -164,13 +165,15 @@ exportURL url = abs ++ the_path ++ the_params
   the_path    = encString False ok_path (url_path url)
   the_params  = case url_params url of
                   [] -> ""
-                  xs -> "?" ++ concat (intersperse "&" $ map a_param xs)
+                  xs -> "?" ++ exportParams xs
 
+exportParams :: [(String,String)] -> String
+exportParams ps = concat (intersperse "&" $ map a_param ps)
+  where
   a_param (k,mv)  = encString True ok_param k ++
                     case mv of
                       "" -> ""
                       v  -> '=' : encString True ok_param v
-
 
 
 
