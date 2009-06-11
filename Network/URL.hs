@@ -240,7 +240,7 @@ ok_path c   = ok_param c || c `elem` "/=&"
 -- XXX: others? check RFC
 -- | Characters that may appear in the textual representation of a URL
 ok_url :: Char -> Bool
-ok_url c = isDigit c || isAlphaASCII c || c `elem` ".-;:@$_!*'(),/=&?~%"
+ok_url c = isDigit c || isAlphaASCII c || c `elem` ".-;:@$_!*'(),/=&?~%+"
 
 -- Misc
 --------------------------------------------------------------------------------
