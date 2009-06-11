@@ -1,16 +1,29 @@
-Name:           url
-Version:        2.1
-License:        BSD3
-License-file:   LICENSE
-Author:         Iavor S. Diatchki
-Maintainer:     diatchki@galois.com
-Homepage:       http://www.haskell.org/haskellwiki/Url
-Category:       Web
-Synopsis:       A library for working with URLs.
-Description:    A library for working with URLs.
-Build-Depends:  base >= 3 && <= 4, utf8-string >= 0.3.4 && < 2
-Build-type:     Simple
-Extra-source-files: LICENSE
-Exposed-modules: Network.URL
-GHC-options:    -O2 -Wall
+name:         url
+version:      2.1
+category:     Web
+synopsis:     A library for working with URLs.
+description:  A library for working with URLs.
+author:       Iavor S. Diatchki
+maintainer:   diatchki@galois.com
+license:      BSD3
+license-file: LICENSE
+homepage:     http://www.haskell.org/haskellwiki/Url
 
+cabal-version: >= 1.2
+build-type:    Simple
+
+library
+  exposed-modules:
+    Network.URL
+
+  build-depends:
+    base        >= 3     && <= 4,
+    utf8-string >= 0.3.4 && <  2
+
+  ghc-options:   -Wall -O2
+  if impl(ghc >= 6.8)
+    ghc-options: -fwarn-tabs
+
+source-repository head
+  type:     git
+  location: git://github.com/yav/url.git
