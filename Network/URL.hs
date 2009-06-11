@@ -22,13 +22,12 @@ module Network.URL
   , exportParams, importParams
   ) where
 
-import Data.Word(Word8)
-import Data.Char(isAlpha,isAscii,isDigit)
-import Data.List(intersperse)
-import Numeric(readHex,showHex)
-import Control.Monad
+import Data.Char (isAlpha, isAscii, isDigit)
+import Data.List (intersperse)
+import Data.Word (Word8)
+import Numeric   (readHex, showHex)
 
-import Codec.Binary.UTF8.String as UTF8
+import qualified Codec.Binary.UTF8.String as UTF8
 
 
 -- | Contains information about the connection to the host.
