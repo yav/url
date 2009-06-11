@@ -48,7 +48,7 @@ secure_prot (RawProt _)  = False
 
 -- | Does this host use a \"secure\" protocol (e.g., https).
 secure :: Host -> Bool
-secure x = secure_prot (protocol x)
+secure = secure_prot . protocol
 
 -- | Different types of URL.
 data URLType  = Absolute Host       -- ^ Has a host
@@ -106,7 +106,7 @@ importURL cs0 =
                       _       -> RawProt as
      _                                -> Nothing
 
-  the_host cs = span ok_host cs
+  the_host = span ok_host
 
   the_port (':':cs)     = case span isDigit cs of
                             ([],_)   -> Nothing
@@ -138,7 +138,7 @@ importParams ds = mapM a_param (breaks ('&'==) ds)
 exportHost :: Host -> String
 exportHost absol = the_prot ++ "://" ++ host absol ++ the_port
   where the_prot  = exportProt (protocol absol)
-        the_port  = maybe "" (\x -> ":" ++ show x) (port absol)
+        the_port  = maybe "" (\x -> ':' : show x) (port absol)
 
 -- | Convert the host part of a URL to a list of \"bytes\".
 -- WARNING: We output \"raw\" protocols as they are.
@@ -164,7 +164,7 @@ exportURL url = absol ++ the_path ++ the_params
   the_path    = encString False ok_path (url_path url)
   the_params  = case url_params url of
                   [] -> ""
-                  xs -> "?" ++ exportParams xs
+                  xs -> '?' : exportParams xs
 
 exportParams :: [(String,String)] -> String
 exportParams ps = concat (intersperse "&" $ map a_param ps)
@@ -199,7 +199,7 @@ encByte b = '%' : case showHex b "" of
 -- | Decode a list of \"bytes\" to a string.
 -- Performs % and UTF8 decoding.
 decString :: Bool -> String -> Maybe String
-decString b xs = fmap UTF8.decode (decStrBytes b xs)
+decString b = fmap UTF8.decode . decStrBytes b
 
 -- Convert a list of \"bytes\" to actual bytes.
 -- Performs %-decoding.  The boolean specifies if we should turn pluses into
