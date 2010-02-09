@@ -1,5 +1,5 @@
 name:         url
-version:      2.1.1
+version:      2.1.2
 category:     Web
 synopsis:     A library for working with URLs.
 description:  A library for working with URLs.
@@ -17,7 +17,7 @@ library
     Network.URL
 
   build-depends:
-    base        >= 3     && <= 4,
+    base        >= 3     && <  5,
     utf8-string >= 0.3.4 && <  2
 
   ghc-options:   -Wall -O2
