@@ -79,7 +79,7 @@ importURL cs0 =
      return URL { url_type = ho, url_path = pa, url_params = as }
 
   where
-  front ('/':cs)  = return (HostRelative,cs)
+  front cs@('/':_)  = return (HostRelative,cs)
   front cs =
     case the_prot cs of
       Just (pr,cs1) ->
@@ -87,7 +87,7 @@ importURL cs0 =
            (po,cs3) <- the_port cs2
            cs4 <- case cs3 of
                     [] -> return []
-                    '/':cs5 -> return cs5
+                    cs5@('/':_) -> return cs5
                     _ -> Nothing
            return (Absolute Host { protocol = pr
                                  , host = ho
@@ -157,9 +157,8 @@ exportURL :: URL -> String
 exportURL url = absol ++ the_path ++ the_params
   where
   absol       = case url_type url of
-                  Absolute hst -> exportHost hst ++ "/"
-                  HostRelative  -> "/"
-                  PathRelative  -> ""
+                  Absolute hst -> exportHost hst
+                  _            -> ""
 
   the_path    = encString False ok_path (url_path url)
   the_params  = case url_params url of
