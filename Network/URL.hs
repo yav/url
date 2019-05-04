@@ -37,7 +37,10 @@ data Host     = Host { protocol :: Protocol
                      } deriving (Eq,Ord,Show)
 
 -- | The type of known protocols.
-data Protocol = HTTP Bool | FTP Bool | RawProt String deriving (Eq,Ord,Show)
+data Protocol = HTTP Bool       -- ^ True for https, False for http
+              | FTP Bool        -- ^ True for ftps, False for ftp
+              | RawProt String 
+                deriving (Eq,Ord,Show)
 
 -- | Is this a \"secure\" protocol.  This works only for known protocols,
 -- for 'RawProt' values we return 'False'.
