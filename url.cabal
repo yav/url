@@ -9,7 +9,7 @@ license:      BSD3
 license-file: LICENSE
 homepage:     http://www.haskell.org/haskellwiki/Url
 
-cabal-version: >= 1.6
+cabal-version: >= 1.8
 build-type:    Simple
 
 library
